@@ -3,17 +3,13 @@ import { useState } from "react";
 interface Props {
   items: string[];
   heading: string;
+
+  onSelectItem: (item: string) => void;
 }
 
-function ListGroup({ items, heading }: Props) {
-  // Hook (Data or state that can change over time)
-  // state management
+function ListGroup({ items, heading, onSelectItem }: Props) {
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
-  // arr[0] variable
-  // arr[1] updater function (update the variable)
-  // the argument in useState hook is the inital value for selectedIndex
-  // to change the value or the state we have a function or updater function that updated the value of the variable
   return (
     <>
       <h1>{heading}</h1>
@@ -27,7 +23,10 @@ function ListGroup({ items, heading }: Props) {
                 : "list-group-item"
             }
             key={item}
-            onClick={() => setSelectedIndex(index)}
+            onClick={() => {
+              setSelectedIndex(index);
+              onSelectItem(item);
+            }}
           >
             {item}
           </li>
