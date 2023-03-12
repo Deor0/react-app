@@ -1,9 +1,11 @@
-// Pascal Casing
-function Message() {
-  // Jsx javascript xml
-  const name: string = "Oshan";
-  if (name) return <h1>Hello {name}</h1>;
-  return <h1>Hello World</h1>;
-}
+let count = 0;
+
+const Message = () => {
+  console.log("Message Called", count);
+
+  count++;
+
+  return <div>Message {count}</div>;
+};
 
 export default Message;
