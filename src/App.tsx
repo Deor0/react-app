@@ -37,6 +37,7 @@ function App() {
   return (
     <>
       {err && <p className="text-danger">{err}</p>}
+      {/* //spinner */}
       {isLoading && <div className="spinner-border"></div>}
       <ul>
         {users.map((user) => (
