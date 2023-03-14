@@ -44,10 +44,22 @@ function App() {
     });
   };
 
+  const addUser = () => {
+    const newUser = { id: 0, name: "Oshan" };
+    setUsers([newUser, ...users]);
+
+    axios.post(url, newUser).then(({ data: savedUser }) => {
+      setUsers([savedUser, ...users]);
+    });
+  };
+
   return (
     <>
       {err && <p className="text-danger">{err}</p>}
       {isLoading && <div className="spinner-border"></div>}
+      <button className="btn btn-primary mb-3" onClick={addUser}>
+        Add
+      </button>
       <ul className="list-group">
         {users.map((user) => (
           <li
