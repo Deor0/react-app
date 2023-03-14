@@ -1,24 +1,16 @@
-import axios, { CanceledError } from "axios";
 import { useEffect, useState } from "react";
-
-interface User {
-  id: number;
-  name: string;
-}
+import { CanceledError } from "./services/api-client";
+import usersServices, { User } from "./services/users-services";
 
 function App() {
-  const url = "https://jsonplaceholder.typicode.com/users";
-
   const [users, setUsers] = useState<User[]>([]);
   const [err, setErr] = useState("");
   const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
-    const controller = new AbortController();
-
     setLoading(true);
-    axios
-      .get<User[]>(url, { signal: controller.signal })
+    const { request, cancel } = usersServices.getAll<User>();
+    request
       .then((res) => {
         setUsers(res.data);
         setLoading(false);
@@ -30,7 +22,7 @@ function App() {
       });
 
     return () => {
-      controller.abort;
+      cancel();
     };
   }, []);
 
@@ -38,18 +30,36 @@ function App() {
     const originalUser = [...users];
     setUsers(users.filter((u) => u.id !== user.id));
 
-    axios.delete(url + "/" + user.id).catch((err) => {
+    usersServices.delete(user.id).catch((err) => {
       setErr(err.message);
       setUsers(originalUser);
     });
   };
 
   const addUser = () => {
+    const originalUser = [...users];
     const newUser = { id: 0, name: "Oshan" };
     setUsers([newUser, ...users]);
 
-    axios.post(url, newUser).then(({ data: savedUser }) => {
-      setUsers([savedUser, ...users]);
+    usersServices
+      .add<User>(newUser)
+      .then(({ data: savedUser }) => {
+        setUsers([savedUser, ...users]);
+      })
+      .catch((err) => {
+        setErr(err.message);
+        setUsers(originalUser);
+      });
+  };
+
+  const updateUser = (user: User) => {
+    const originalUser = [...users];
+    const updatedUser = { ...user, name: user.name + "!" };
+    setUsers(users.map((u) => (u.id === user.id ? updatedUser : u)));
+
+    usersServices.update<User>(updatedUser).catch((err) => {
+      setErr(err.message);
+      setUsers(originalUser);
     });
   };
 
@@ -67,12 +77,20 @@ function App() {
             className="list-group-item d-flex justify-content-between"
           >
             {user.name}
-            <button
-              className="btn btn-outline-danger"
-              onClick={() => deleteUser(user)}
-            >
-              Delete
-            </button>
+            <div className="d-flex">
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => updateUser(user)}
+              >
+                Update
+              </button>
+              <button
+                className="btn btn-outline-danger"
+                onClick={() => deleteUser(user)}
+              >
+                Delete
+              </button>
+            </div>
           </li>
         ))}
       </ul>
